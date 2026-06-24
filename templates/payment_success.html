@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container success-container">
+    <div class="success-box">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1>Pagamento Realizado com Sucesso!</h1>
+        <p>Bem-vindo ao plano Premium Art.Resumos</p>
+        
+        <div class="success-details">
+            <h3>Você agora tem:</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Resumos ilimitados</li>
+                <li><i class="fas fa-check"></i> Vídeos até 6 horas</li>
+                <li><i class="fas fa-check"></i> Download de resumos</li>
+                <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                <li><i class="fas fa-check"></i> API de integração</li>
+            </ul>
+        </div>
+        
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-arrow-right"></i> Ir para Dashboard
+        </a>
+        
+        <p class="success-email">Um email de confirmação foi enviado para {{ current_user.email }}</p>
+    </div>
+</div>
+{% endblock %}

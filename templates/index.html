@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Resuma vídeos com clareza</h1>
+        <p>Art.Resumos transforma qualquer vídeo do YouTube em resumo estruturado e transcrição com tempo, parágrafo por parágrafo.</p>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-play"></i> Começar Agora
+            </a>
+        {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket"></i> Cadastre-se Grátis
+            </a>
+        {% endif %}
+    </div>
+    <div class="hero-image">
+        <i class="fas fa-video"></i>
+    </div>
+</div>
+
+<section class="features">
+    <div class="container">
+        <h2>Por que usar Art.Resumos?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Rápido e Eficiente</h3>
+                <p>Resuma vídeos de qualquer comprimento em poucos segundos com nossa IA avançada</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-brain"></i>
+                <h3>IA Inteligente</h3>
+                <p>Usando os melhores modelos de IA para gerar resumos precisos e compreensivos</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-lock"></i>
+                <h3>100% Seguro</h3>
+                <p>Seus dados e vídeos são criptografados e mantidos confidenciais</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Responsivo</h3>
+                <p>Acesse de qualquer dispositivo - desktop, tablet ou smartphone</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-heart"></i>
+                <h3>Fácil de Usar</h3>
+                <p>Interface intuitiva - cole a URL e pronto, seu resumo está pronto</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-infinite"></i>
+                <h3>Plano Premium</h3>
+                <p>Acesso ilimitado a todos os recursos por um preço justo</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <h2>Como Funciona?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Copie o Link</h3>
+                <p>Copie o link de qualquer vídeo do YouTube</p>
+            </div>
+            <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Cole e Envie</h3>
+                <p>Cole o link em nossa plataforma</p>
+            </div>
+            <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Receba o Resumo</h3>
+                <p>Receba um resumo em português em segundos</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <h2>Comece Agora - Gratuitamente!</h2>
+        <p>3 resumos gratuitos por dia. Sem cartão de crédito necessário.</p>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Criar Conta Grátis</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container error-container">
+    <div class="error-box">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1>Erro no Pagamento</h1>
+        <p>Ocorreu um erro ao processar seu pagamento</p>
+        
+        <div class="error-details">
+            <p><strong>Erro:</strong> {{ error }}</p>
+        </div>
+        
+        <div class="error-actions">
+            <a href="{{ url_for('main.pricing') }}" class="btn btn-primary">
+                <i class="fas fa-redo"></i> Tentar Novamente
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

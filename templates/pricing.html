@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container pricing-container">
+    <h1>Escolha Seu Plano</h1>
+    <p class="pricing-subtitle">Comece grátis e faça upgrade quando quiser</p>
+    
+    <div class="pricing-cards">
+        <!-- Plano Free -->
+        <div class="pricing-card">
+            <div class="plan-badge">Popular</div>
+            <h2>Gratuito</h2>
+            <div class="price">R$0</div>
+            <p class="price-period">para sempre</p>
+            
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> 3 resumos por dia</li>
+                <li><i class="fas fa-check"></i> Vídeos até 3 horas</li>
+                <li><i class="fas fa-check"></i> Resumos em português</li>
+                <li><i class="fas fa-check"></i> Acesso a transcrições</li>
+                <li><i class="fas fa-times"></i> Download de resumos</li>
+                <li><i class="fas fa-times"></i> API de integração</li>
+                <li><i class="fas fa-times"></i> Suporte prioritário</li>
+            </ul>
+            
+            {% if current_user.is_authenticated and current_user.plan == 'free' %}
+                <button class="btn btn-secondary btn-block" disabled>Plano Atual</button>
+            {% elif current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-block">Ir para Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block">Começar Grátis</a>
+            {% endif %}
+        </div>
+        
+        <!-- Plano Premium -->
+        <div class="pricing-card premium">
+            <div class="plan-badge best-value">Melhor Valor</div>
+            <h2>Premium</h2>
+            <div class="price">R$19,99</div>
+            <p class="price-period">por mês</p>
+            
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> <strong>Resumos Ilimitados</strong></li>
+                <li><i class="fas fa-check"></i> Vídeos até 6 horas</li>
+                <li><i class="fas fa-check"></i> Resumos em português</li>
+                <li><i class="fas fa-check"></i> Acesso a transcrições</li>
+                <li><i class="fas fa-check"></i> Download de resumos</li>
+                <li><i class="fas fa-check"></i> API de integração</li>
+                <li><i class="fas fa-check"></i> Suporte prioritário 24/7</li>
+            </ul>
+            
+            {% if current_user.is_authenticated and current_user.plan == 'premium' %}
+                <button class="btn btn-primary btn-block" disabled>Plano Atual</button>
+            {% elif current_user.is_authenticated %}
+                <a href="{{ url_for('payment.upgrade') }}" class="btn btn-primary btn-block">
+                    <i class="fas fa-star"></i> Fazer Upgrade
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-block">
+                    <i class="fas fa-star"></i> Comece Agora
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="comparison-table">
+        <h2>Comparação Completa</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Recurso</th>
+                    <th>Gratuito</th>
+                    <th>Premium</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Resumos por dia</td>
+                    <td>3</td>
+                    <td>Ilimitados</td>
+                </tr>
+                <tr>
+                    <td>Duração máxima</td>
+                    <td>3 horas</td>
+                    <td>6 horas</td>
+                </tr>
+                <tr>
+                    <td>Transcrições</td>
+                    <td><i class="fas fa-check"></i></td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+                <tr>
+                    <td>Download de Resumos</td>
+                    <td>-</td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+                <tr>
+                    <td>Histórico Completo</td>
+                    <td>Últimos 30 dias</td>
+                    <td>Ilimitado</td>
+                </tr>
+                <tr>
+                    <td>API de Integração</td>
+                    <td>-</td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+                <tr>
+                    <td>Suporte por Email</td>
+                    <td>-</td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+                <tr>
+                    <td>Prioridade no Processamento</td>
+                    <td>-</td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="faq-section">
+        <h2>Perguntas Frequentes</h2>
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>Como o limite de 3 resumos funciona?</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>No plano gratuito, você pode fazer resumo de até 3 vídeos por dia (24 horas). O contador reseta à meia-noite. No plano Premium, você tem resumos ilimitados.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>Posso cancelar minha assinatura Premium?</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>Sim, você pode cancelar a qualquer momento sem penalidades. Você terá acesso até o final do período pago.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>Quais vídeos posso resumir?</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>Qualquer vídeo do YouTube que tenha legendas (automáticas ou adicionadas pelo criador). Tutoriais, palestras, documentários, etc.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>Em quantos idiomas posso receber resumos?</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>Atualmente oferecemos resumos em português. Em breve, mais idiomas estarão disponíveis!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.faq-question').forEach(button => {
+    button.addEventListener('click', function() {
+        const item = this.closest('.faq-item');
+        item.classList.toggle('active');
+    });
+});
+</script>
+{% endblock %}

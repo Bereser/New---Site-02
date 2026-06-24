@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-intro">
+            <span class="eyebrow">Seu estúdio de resumos</span>
+            <h1>Dashboard</h1>
+            <p>Olá, {{ current_user.full_name or current_user.username }}! Cole um link e receba resumo + transcrição com tempo.</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <i class="fas fa-clapperboard"></i>
+                <div>
+                    <div class="stat-value">{{ daily_usage }}/{{ plan_display }}</div>
+                    <div class="stat-label">Resumos hoje</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-gem"></i>
+                <div>
+                    <div class="stat-value">{{ current_user.plan.upper() }}</div>
+                    <div class="stat-label">Seu plano</div>
+                </div>
+            </div>
+            {% if not current_user.is_premium() %}
+            <a href="{{ url_for('payment.upgrade') }}" class="btn btn-primary">
+                <i class="fas fa-star"></i> Premium
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+        <div class="left-panel">
+            <div class="summarizer-box card-elevated">
+                <div class="card-heading">
+                    <i class="fas fa-link"></i>
+                    <h2>Resumir novo vídeo</h2>
+                </div>
+
+                {% if daily_usage >= plan_limit and current_user.plan == 'free' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Limite diário atingido!</strong>
+                            <p>Você usou os 3 resumos gratuitos de hoje. Faça upgrade para continuar.</p>
+                        </div>
+                        <a href="{{ url_for('payment.upgrade') }}" class="btn btn-sm btn-primary">Upgrade</a>
+                    </div>
+                {% endif %}
+
+                <form id="summarizeForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label for="videoUrl">Link do YouTube</label>
+                        <input
+                            type="text"
+                            id="videoUrl"
+                            name="url"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            value="https://www.youtube.com/watch?v="
+                            required
+                        >
+                        <small>Suportamos links youtube.com e youtu.be</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                        <i class="fas fa-wand-magic-sparkles"></i> Gerar resumo e transcrição
+                    </button>
+                </form>
+            </div>
+
+            <div id="processingBox" class="processing-box card-elevated" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processando seu vídeo...</p>
+                <small>Pode levar de 30 segundos a 2 minutos quando usamos transcrição local</small>
+            </div>
+
+            <div id="resultBox" class="result-box card-elevated" style="display: none;">
+                <div class="result-header">
+                    <div>
+                        <span class="eyebrow">Resultado pronto</span>
+                        <h3 id="resultTitle">Título do vídeo</h3>
+                    </div>
+                    <button type="button" class="close-result" aria-label="Fechar">&times;</button>
+                </div>
+
+                <div class="result-meta">
+                    <span><i class="fas fa-clock"></i> <span id="resultDuration">00:00</span></span>
+                </div>
+
+                <div class="content-tabs" role="tablist">
+                    <button type="button" class="content-tab active" data-tab="summary" role="tab">Resumo</button>
+                    <button type="button" class="content-tab" data-tab="transcript" role="tab">Transcrição</button>
+                </div>
+
+                <div id="resultSummaryPanel" class="content-panel active">
+                    <div id="resultSummary" class="summary-text markdown-body"></div>
+                </div>
+
+                <div id="resultTranscriptPanel" class="content-panel">
+                    <div id="resultTranscript" class="transcript-paragraphs"></div>
+                </div>
+
+                <div class="result-actions">
+                    <button type="button" class="btn btn-sm btn-secondary" id="copyBtn">
+                        <i class="fas fa-copy"></i> Copiar resumo
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="copyTranscriptBtn">
+                        <i class="fas fa-copy"></i> Copiar transcrição
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="summaries-box card-elevated">
+                <div class="card-heading">
+                    <i class="fas fa-folder-open"></i>
+                    <h2>Meus resumos</h2>
+                </div>
+
+                <div id="summariesList" class="summaries-list">
+                    {% if summaries %}
+                        {% for summary in summaries %}
+                            <div class="summary-item" data-id="{{ summary.id }}">
+                                <div class="summary-header">
+                                    <h4>{{ summary.video.title[:50] }}</h4>
+                                    <span class="status status-{{ summary.status }}">{{ summary.status }}</span>
+                                </div>
+                                <div class="summary-meta">
+                                    <span><i class="fas fa-calendar"></i> {{ summary.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                                    {% if summary.video.duration %}
+                                        <span><i class="fas fa-clock"></i> {{ summary.video.duration // 60 }}m</span>
+                                    {% endif %}
+                                </div>
+                                <p class="summary-preview">{{ summary.summary[:100] }}...</p>
+                                <div class="summary-actions">
+                                    <a href="#" class="link-view" data-summary-id="{{ summary.id }}">Ver completo</a>
+                                    <a href="#" class="link-delete" data-summary-id="{{ summary.id }}">Deletar</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum resumo ainda</p>
+                            <small>Comece resumindo seu primeiro vídeo</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="summaryModal" class="modal">
+    <div class="modal-content modal-wide">
+        <div class="modal-header">
+            <div>
+                <span class="eyebrow">Detalhes do vídeo</span>
+                <h2 id="modalTitle">Título</h2>
+            </div>
+            <button type="button" class="close-modal" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="modalContent"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="copyFullBtn">
+                    <i class="fas fa-copy"></i> Copiar resumo
+                </button>
+                <button type="button" class="btn btn-secondary" id="copyModalTranscriptBtn">
+                    <i class="fas fa-copy"></i> Copiar transcrição
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

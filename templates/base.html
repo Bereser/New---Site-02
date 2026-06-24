@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_name }} - Resumos de Vídeos com IA{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.index') }}" class="logo">
+                <span class="logo-mark"><i class="fas fa-palette"></i></span>
+                <span class="logo-text"><strong>Art.</strong>Resumos</span>
+            </a>
+            <ul class="nav-menu">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('main.pricing') }}">Planos</a></li>
+                    <li class="user-menu">
+                        <button class="user-btn" type="button">
+                            <i class="fas fa-user"></i> {{ current_user.username }}
+                        </button>
+                        <div class="dropdown">
+                            <a href="{{ url_for('main.dashboard') }}">Meus Resumos</a>
+                            {% if not current_user.is_premium() %}
+                                <a href="{{ url_for('payment.upgrade') }}">Upgrade Premium</a>
+                            {% endif %}
+                            <hr>
+                            <a href="{{ url_for('auth.logout') }}">Logout</a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li><a href="{{ url_for('main.pricing') }}">Planos</a></li>
+                    <li><a href="{{ url_for('auth.login') }}" class="btn-login">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}" class="btn-signup">Cadastro</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                    <button class="close-alert" type="button">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><strong>Art.</strong>Resumos</h3>
+                <p>Transforme vídeos do YouTube em resumos claros e transcrições organizadas por tempo.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('main.pricing') }}">Preços</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Cadastro</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Recursos</h4>
+                <ul>
+                    <li>Resumo com IA</li>
+                    <li>Transcrição com tempo</li>
+                    <li>Histórico de vídeos</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Art.Resumos. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
