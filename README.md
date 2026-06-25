@@ -49,15 +49,38 @@ GOOGLE_API_KEY=sua-chave-google-aqui
 STRIPE_PUBLIC_KEY=sua-chave-publica
 STRIPE_SECRET_KEY=sua-chave-secreta
 SECRET_KEY=sua-chave-secreta-flask
+STRIPE_WEBHOOK_SECRET=sua-chave-webhook-secreta
 ```
 
-### 5. Inicie o aplicativo
+### 5. Inicie o aplicativo localmente
 
 ```bash
 python app.py
 ```
 
 O aplicativo estará disponível em: **http://localhost:5000**
+
+### 6. Deploy no Render
+
+Este projeto já vem preparado para deploy no Render com `Procfile` e `render.yaml`.
+
+Passos:
+
+1. Crie um repositório GitHub e envie o projeto.
+2. Crie uma conta em https://render.com.
+3. Conecte o repositório ao Render.
+4. Crie um novo serviço web.
+5. Use estas configurações:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT`
+6. Defina as variáveis de ambiente no painel do Render:
+   - `GOOGLE_API_KEY`
+   - `STRIPE_PUBLIC_KEY`
+   - `STRIPE_SECRET_KEY`
+   - `SECRET_KEY`
+   - `STRIPE_WEBHOOK_SECRET`
+
+Após o deploy, o Render publicará o site Flask completo.
 
 ## 🔑 Como Obter as Chaves
 
