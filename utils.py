@@ -10,6 +10,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from ai_service import summarize_text as summarize_with_genai, is_genai_available
 
 import sys
+import shutil
 import tempfile
 import subprocess
 
@@ -225,6 +226,35 @@ def _parse_transcript_xml(raw_text):
     except ET.ParseError as e:
         print(f"_parse_transcript_xml: ParseError: {e}")
         return None
+
+
+def _find_ffmpeg_executable():
+    """Retorna o caminho do ffmpeg se disponível no PATH ou via imageio_ffmpeg."""
+    ffmpeg_path = shutil.which('ffmpeg')
+    if ffmpeg_path and os.path.isfile(ffmpeg_path):
+        return ffmpeg_path
+
+    try:
+        import imageio_ffmpeg
+        ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+        if ffmpeg_path and os.path.isfile(ffmpeg_path):
+            return ffmpeg_path
+    except Exception:
+        pass
+
+    return None
+
+
+def _ensure_ffmpeg_in_path():
+    ffmpeg_path = _find_ffmpeg_executable()
+    if not ffmpeg_path:
+        return False
+
+    ffmpeg_dir = os.path.dirname(ffmpeg_path)
+    current_path = os.environ.get('PATH', '')
+    if ffmpeg_dir not in current_path.split(os.pathsep):
+        os.environ['PATH'] = ffmpeg_dir + os.pathsep + current_path
+    return True
 
 
 def _download_subtitle_text(url, session=None):
@@ -573,21 +603,12 @@ def _transcribe_with_whisper(url, max_duration=900):
             return None
 
         audio_path = audio_files[0]
-        ffmpeg_path = None
-        try:
-            import imageio_ffmpeg
-            ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
-        except ImportError:
-            pass
-
-        if ffmpeg_path and os.path.isfile(ffmpeg_path):
-            ffmpeg_dir = os.path.join(tmpdir, 'bin')
-            os.makedirs(ffmpeg_dir, exist_ok=True)
-            ffmpeg_alias = os.path.join(ffmpeg_dir, 'ffmpeg.exe')
-            if not os.path.exists(ffmpeg_alias):
-                with open(ffmpeg_path, 'rb') as src, open(ffmpeg_alias, 'wb') as dst:
-                    dst.write(src.read())
-            os.environ['PATH'] = ffmpeg_dir + os.pathsep + os.environ.get('PATH', '')
+        if not _ensure_ffmpeg_in_path():
+            _set_transcript_error(
+                'Whisper nao encontrou FFmpeg. Instale ffmpeg no PATH ou garanta que imageio-ffmpeg esteja instalado.'
+            )
+            print("whisper fallback: ffmpeg nao encontrado")
+            return None
 
         print("whisper fallback: iniciando transcricao local")
         model = whisper.load_model('tiny')
