@@ -257,6 +257,18 @@ def _ensure_ffmpeg_in_path():
     return True
 
 
+def _get_yt_cookies_file():
+    """Retorna o caminho do arquivo de cookies do YouTube, se configurado."""
+    try:
+        cookie_file = current_app.config.get('YT_COOKIES_FILE')
+    except RuntimeError:
+        cookie_file = None
+
+    if cookie_file and os.path.isfile(cookie_file):
+        return cookie_file
+    return None
+
+
 def _download_subtitle_text(url, session=None):
     raw = _fetch_url_text(url, session=session)
     if not raw:
@@ -275,6 +287,10 @@ def _yt_dlp_cli_subtitles(video_url, langs=('pt', 'pt-BR', 'pt-PT', 'en')):
         lang_arg = ','.join(langs)
         out_template = os.path.join(tmpdir, '%(id)s.%(ext)s')
         cmd = [sys.executable, '-m', 'yt_dlp', video_url, '--skip-download', '--write-auto-sub', '--sub-lang', lang_arg, '--sub-format', 'vtt', '-o', out_template]
+
+        cookie_file = _get_yt_cookies_file()
+        if cookie_file:
+            cmd[1:1] = ['--cookies', cookie_file]
 
         env = os.environ.copy()
         try:
@@ -583,6 +599,10 @@ def _transcribe_with_whisper(url, max_duration=900):
             'noplaylist': True,
         }
 
+        cookie_file = _get_yt_cookies_file()
+        if cookie_file:
+            ydl_opts['cookiefile'] = cookie_file
+
         try:
             proxy = current_app.config.get('YT_PROXY')
             if proxy:
@@ -814,6 +834,10 @@ def get_video_transcript(url):
                 'subtitlesformat': 'vtt',
                 'format': 'best',
             }
+            cookie_file = _get_yt_cookies_file()
+            if cookie_file:
+                ydl_opts['cookiefile'] = cookie_file
+
             try:
                 proxy = current_app.config.get('YT_PROXY')
                 if proxy:
